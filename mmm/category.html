@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.css">
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/template.js"></script>
+    <script src="./js/handlebars-1.0.0.beta.6.js"></script>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/select.css" />
+    <script src="./js/url.js"></script>
+</head>
+
+<body>
+    <!--header start-->
+    <header id="header">
+        <a href="#" class="logo">
+            <img src="images/header_logo.png" alt="">
+        </a>
+        <a href="#" class="download">
+            <img src="images/header_app.png" alt="">
+        </a>
+    </header>
+    <!--header end-->
+
+    <!--search start-->
+    <section id="search">
+        <form>
+            <div class="search-input">
+                <input type="search" placeholder="输入比价商品">
+            </div>
+            <input type="button" value="搜索">
+        </form>
+    </section>
+
+    <!--search end-->
+
+    <!--main start-->
+
+    <section id="main">
+        <!--<div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">大家电</h3>
+            </div>
+            <ul class="panel-body row show-grid">
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+            </ul>
+        </div>-->
+    </section>
+
+
+    <!--main end-->
+
+    <!--footer start-->
+    <footer id="footer">
+        <div class="login">
+            <a href="#" class="login-ok">登录</a>
+            <a href="#" class="register">注册</a>
+            <a href="#" class="goBack">
+                <img src="http://www.zuyushop.com/wap/images/top.jpg" alt="">
+                返回顶部</a>
+        </div>
+        <p><a href="#">手机APP下载</a><a href="#">
+                    慢慢买手机版</a> -- 掌上比价平台
+        </p>
+        <p> m.manmanbuy.com </p>
+    </footer>
+
+    <!--footer end-->
+
+
+    <!--headlebars Model(title part)-->
+    <script type="text/html" id="bigHdb">
+        {{#each result}}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-id={{titleId}}>{{title}}</h3>
+            </div>
+            <ul class="panel-body row show-grid">
+                <!--<li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>
+                <li class="col-xs-4"><a href="#">平板电视</a></li>-->
+            </ul>
+        </div>
+
+        {{/each}}
+    </script>
+
+    <!--headlebars Model(list part)-->
+    <script type="text/html" id="list">
+        {{#each result}}
+        <li class="col-xs-4"><a href="./product.html?categoryId={{categoryId}}&pageid=1">{{category}}</a></li>
+        {{/each}}
+    </script>
+
+
+
+    <script>
+        // link main delegate
+        $(function () {
+            $("#main").on("click", ".panel-title", function () {
+                $(this).parent().siblings("ul").toggle();
+                // console.log($(this).parent().siblings());
+                $(this).parent().parent().siblings().find("ul").hide();
+                // console.log($(this).parent().parent().siblings().find("ul"));
+                var $titleid = $(this).attr("data-id");
+                // console.log($titleid);
+                var $that = $(this);
+                getList($titleid, $that);
+            })
+            getBighdb();
+        })
+
+        function getBighdb() {
+            $.ajax({
+                type: 'get',
+                url: url+'api/getcategorytitle',
+                data: null,
+                success: function (info) {
+                    // console.log(info);
+                    //hardlebar 的固定写法。命名是随意的
+                    var bigResult = Handlebars.compile($("#bigHdb").html());
+                    $("#main").html(bigResult(info));
+                }
+            })
+        }
+
+
+        function getList($titleid, $that) {
+            $.ajax({
+                type: 'get',
+                url: url+'api/getcategory',
+                data: {
+                    titleid: $titleid
+                },
+                success: function (infor) {
+                    // console.log(infor);
+                    //hardlebar 的固定写法。命名是随意的
+                    var listResult = Handlebars.compile($("#list").html());
+                    var $ul = $that.parent().siblings("ul");
+                    //    console.log($ul)
+                    $ul.html(listResult(infor));
+                    //清除每个ul中最后一行的border-bottom；
+                    //找到ul的个数；
+                    var $lis = $ul.children().length;
+                    //取余找到最后一行的个数；如果余数为0，就让他显示3个，
+                    var lastli = $lis % 3 || 3;
+                    //让最后一行的几个li的border-bottom为0;
+                    $ul.children("li:nth-last-child(-n+" + lastli + ")").css("border-bottom", "none");
+
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.css">
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/template.js"></script>
+    <script src="./js/handlebars-1.0.0.beta.6.js"></script>
+    <script src="./js/url.js"></script>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/product.css" />
+
+</head>
+
+<body>
+    <!--header start-->
+    <header id="header">
+        <a href="#" class="logo">
+            <img src="images/header_logo.png" alt="">
+        </a>
+        <a href="#" class="download">
+            <img src="images/header_app.png" alt="">
+        </a>
+    </header>
+    <!--header end-->
+
+    <!--search start-->
+    <section id="search">
+        <form>
+            <div class="search-input">
+                <input type="search" placeholder="输入比价商品">
+            </div>
+            <input type="button" value="搜索">
+        </form>
+    </section>
+
+    <!--search end-->
+
+    <!--select start-->
+    <section id="select-tit">
+        <ol class="breadcrumb">
+            <li><a href="#">首页</a></li>
+            <li><a href="./category.html">全部分类</a></li>
+            <li class="active">电视</li>
+        </ol>
+        <input type="button" value="筛选">
+    </section>
+    <section id="select">
+        <div class="selectList">
+            <ul>
+                <li>
+                    <a href="#">
+                        <div class="pic"><img src="http://www.zuyushop.com:8013/ProPic/20173/small80/Thumb_2017030009061421571.jpg" alt=""></div>
+                        <div class="total">
+                            <div class="tit">
+                                <p>索尼(SONY) KD-100Z9D 100英寸 支持3D 4K超高清HDR智能网络电视</p>
+                                <p><small>￥</small><span>499999</span></p>
+                            </div>
+                            <div class="other">
+                                <span class="sp-l">2商城报价</span>
+                                <span class="sp-r">有0人评论</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section class="page">
+        <ul>
+            <li>
+                <span><a href="#" class="pre_page">上一页</a></div>
+            </li>
+            <li>
+                <select name="" class="changePage">
+                    <option value="1">第1页</option>
+                    <option value="2">第2页</option>
+                </select>
+            </li>
+            <li>
+                <span><a href="#" class="next_page">下一页</a></div>
+            </li>
+        </ul>
+
+
+    </section>
+    <!--select end-->
+
+    <!--footer start-->
+    <footer id="footer">
+        <div class="login">
+            <a href="#" class="login-ok">登录</a>
+            <a href="#" class="register">注册</a>
+            <a href="#" class="goBack">
+                <img src="http://www.zuyushop.com/wap/images/top.jpg" alt="">
+                返回顶部</a>
+        </div>
+        <p><a href="#">手机APP下载</a><a href="#">
+                    慢慢买手机版</a> -- 掌上比价平台
+        </p>
+        <p> m.manmanbuy.com </p>
+    </footer>
+
+    <!--footer end-->
+
+
+
+    <script type="text/html" id="categoryidtpl">
+        {{#each result}}
+            <li>
+                <a href="#">
+                    <div class="pic">{{{productImg}}}</div>
+                    <div class="total">
+                        <div class="tit">
+                            <p>{{productName}}</p>
+                            <p><span>{{productPrice}}</span></p>
+                        </div>
+                        <div class="other">
+                            <span class="sp-l">{{productQuote}}</span>
+                            <span class="sp-r">{{productCom}}</span>
+                        </div>
+                    </div>
+                </a>
+            </li>
+        {{/each}}
+    </script>
+
+
+    <script>
+        $(function () {
+             //获取categoryId
+             var categoryid = GetQueryString("categoryId");
+             //获取pageID
+            var pageid = GetQueryString("pageid");
+            //调用函数
+            getselectid(categoryid)
+             getselectList(categoryid, pageid)
+        })
+        //获取地址栏中的数据
+        function GetQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                 return unescape(r[2]);
+            }
+                return null;
+        }
+
+        //修改电视位置的值
+        function getselectid(categoryid) {
+             $.ajax({
+                 type: 'get',
+                url: url + 'api/getcategorybyid?categoryid=' + categoryid,
+                success: function (infor) {
+                 //获取电视位置的key(空调之类的)
+                 //    console.log(infor);
+                // console.log(infor.result[0].category);
+                $(".active").html(infor.result[0].category);
+                }
+            })
+        }
+
+        function getselectList(categoryid, pageid) {
+            //后台获取到的值是字符串，要转换为数字
+            var pageid = parseInt(pageid);
+             $.ajax({
+                type: 'get',
+                url: url + "api/getproductlist",
+                data: {
+                    categoryid: categoryid,
+                    pageid: pageid || 1
+                },
+                success: function (info) {
+                    // console.log(info);
+                    var mytpl = Handlebars.compile($("#categoryidtpl").html());
+                    $(".selectList ul").html(mytpl(info));
+                    //获取页数
+                    var pagesize=info.pagesize;
+                    var totalCount=info.totalCount;
+                    var pages=Math.ceil(totalCount/pagesize);
+                    // console.log(pages);
+
+                    //把页数放进select中
+                    var option="";
+                    for(var i=1; i<=pages;i++){
+                        //判断：当i（也就是当前页）和pageid相等时，就说明该页被选中
+                        if(i==pageid){
+                            option+="<option selected value="+i+">第"+i+"页</option>";
+                        }
+                        else{
+                            option+="<option value="+i+">第"+i+"页</option>";
+                        } 
+                    }
+                //    console.log(option);
+                //放进select中
+                $(".changePage").html(option);
+                // console.log(1);
+                //给changePage 添加事件
+                $(".changePage").change(function(){
+                    // console.log(1);
+                    // console.log($(this).val());
+                    //点击第几页，对应跳转到该网页的内容（也就是地址栏的替换）(获取当前地址用window.location.href方法)
+                    window.location.href="./product.html?categoryId="+categoryid+"&pageid="+$(this).val();
+                    // console.log(window.location.href);
+                })
+                //设置上一页和下一页
+                var prePage="./product.html?categoryId="+categoryid+"&pageid="+(pageid-1);
+                var nextPage="./product.html?categoryId="+categoryid+"&pageid="+(pageid+1);
+               
+                //判断两端的顶点值
+                if(pageid<=1){
+                     var prePage="./product.html?categoryId="+categoryid+"&pageid=1";
+                }
+                if(pageid>=pages){
+                     var nextPage="./product.html?categoryId="+categoryid+"&pageid="+pages;
+                }
+                 // 将地址信息，放进两个标签中
+                $(".pre_page").attr("href",prePage);
+                $(".next_page").attr("href",nextPage);
+                }
+           
+             })
+        }
+    </script>
+
+
+</body>
+
+</html>

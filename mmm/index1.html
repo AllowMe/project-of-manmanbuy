@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.css">
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/template.js"></script>
+    <script src="./js/handlebars-1.0.0.beta.6.js"></script>
+    <script src="./js/url.js"></script>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/index.css" />
+    
+</head>
+
+<body>
+    <!--header start-->
+    <header id="header">
+        <a href="#" class="logo">
+            <img src="images/header_logo.png" alt="">
+        </a>
+        <a href="#" class="download">
+            <img src="images/header_app.png" alt="">
+        </a>
+    </header>
+    <!--header end-->
+
+    <!--search start-->
+    <section id="search">
+        <form>
+            <div class="search-input">
+                <input type="search" placeholder="输入比价商品">
+            </div>
+            <input type="button" value="搜索">
+        </form>
+    </section>
+
+    <!--search end-->
+
+    <!--main start-->
+    <section id="nav">
+        <div class="row">
+            <!--<a class="col-xs-3">
+                <img src="images/ic_search.png" alt="">
+                <p>比价搜索</p>
+            </a>
+            <a class="col-xs-3">
+                <img src="images/ic_search.png" alt="">
+                <p>比价搜索</p>
+            </a>
+            <a class="col-xs-3">
+                <img src="images/ic_search.png" alt="">
+                <p>比价搜索</p>
+            </a>
+            <a class="col-xs-3">
+                <img src="images/ic_search.png" alt="">
+                <p>比价搜索</p>
+            </a>-->
+
+        </div>
+    </section>
+
+
+    <section id="discount">
+        <div class="item">
+          
+                <div class="title">
+                    <div class="discount-title">超值折扣推荐</div>
+                    <img src="http://www.zuyushop.com/wap/images/more.png" alt="">
+                </div>
+           
+            <div class="media-fa">
+                <!--<div class="media">
+                    <div class="media-left">
+                        <a href="#">
+                        <img class="media-object" src="http://apic.zuyushop.com/cuxiaoPic/20177/201707001002288171.gif" alt="...">
+                    </a>
+                    </div>
+                    <div class="media-body">
+                        <h4 class="media-heading">【实时更新】慢慢买7周年福利—晒威望求助攻 <span>晒图更新啦！</span></h4>
+                        <p> 慢慢买 | 07-13 18:20</p> <span class="pan"><i></i>213</span>
+                    </div>
+                </div>-->
+            </div>
+
+        </div>
+        <div class="more">
+            <a href="#">更多优惠信息 »</a>
+        </div>
+    </section>
+    <!--main end-->
+
+    <!--footer start-->
+    <footer id="footer">
+        <a href="#">
+            <div class="title">
+                <div class="discount-title">品牌排行</div>
+                <img src="http://www.zuyushop.com/wap/images/more.png" alt="">
+            </div>
+        </a>
+        <div class="login">
+            <a href="#" class="login-ok">登录</a>
+            <a href="#" class="register">注册</a>
+            <a href="#" class="goBack">
+                <img src="http://www.zuyushop.com/wap/images/top.jpg" alt="">
+                返回顶部</a>
+        </div>
+        <p><a href="#">手机APP下载</a><a href="#">
+                    慢慢买手机版</a> -- 掌上比价平台
+        </p>
+        <p> m.manmanbuy.com </p>
+    </footer>
+
+    <!--footer end-->
+
+    <!--nav part template-->
+    <script type="text/html" id="row">
+        {{each result as value }}
+        <!--<div class="item">-->
+            <a class="row_a col-xs-3" href={{value.titlehref}}>
+                {{#value.img}}
+                <p>{{value.name}}</p>
+            </a> 
+        <!--</div>-->
+        {{/each}}
+
+    </script>
+
+    <!--discount product Handlebars-->
+
+    <script type="text/html" id="media">
+        {{#each result}}
+        <div class="media">
+            <div class="media-left">
+                <a href="#">
+                       {{{productImgSm}}}
+                    </a>
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading">{{productName}} <span>{{productPinkage}}</span></h4>
+                <p> {{productFrom}} | {{productTime}}</p> <span class="pan"><i></i>{{productComCount}}</span>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+
+    <script>
+        function getRow() {
+            $.ajax({
+                type: 'get',
+                url: url+'api/getindexmenu',
+                data: null,
+                success: function (info) {
+                    console.log(info);
+                    var rowResult = template("row", info);
+                    $(".row").append(rowResult);
+                }
+            })
+        }
+
+        function getMedia() {
+            $.ajax({
+                type: 'get',
+                url: url+'api/getmoneyctrl',
+                data: null,
+                success: function (infor) {
+                    // console.log(infor);
+                    var mytpl = Handlebars.compile($("#media").html());
+                    $(".media-fa").append(mytpl(infor));
+
+                }
+            })
+        }
+
+
+        $(function () {
+            getMedia();
+            getRow();
+            //on delegate
+            // console.log(1);
+            $(".row").on("click", " .row_a:nth-child(8)", function () {
+                // console.log(1);
+                
+                $(".row_a:nth-last-child(-n+4)").toggle();
+               
+                
+            })
+            
+
+        })
+    </script>
+</body>
+
+</html>
